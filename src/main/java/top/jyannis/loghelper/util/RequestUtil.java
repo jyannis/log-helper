@@ -1,4 +1,4 @@
-package com.jyannis.loghelper.util;
+package top.jyannis.loghelper.util;
 
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;

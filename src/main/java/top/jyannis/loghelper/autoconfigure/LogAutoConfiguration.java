@@ -1,8 +1,8 @@
-package com.jyannis.loghelper.autoconfigure;
+package top.jyannis.loghelper.autoconfigure;
 
-import com.jyannis.loghelper.aspect.LogAspect;
-import com.jyannis.loghelper.processor.DefaultLogProcessor;
-import com.jyannis.loghelper.processor.LogProcessor;
+import top.jyannis.loghelper.aspect.LogAspect;
+import top.jyannis.loghelper.processor.DefaultLogProcessor;
+import top.jyannis.loghelper.processor.LogProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

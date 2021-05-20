@@ -1,9 +1,8 @@
-package com.jyannis.loghelper.processor;
+package top.jyannis.loghelper.processor;
 
 import cn.hutool.json.JSONUtil;
-import com.jyannis.loghelper.domain.LogInfo;
-import com.jyannis.loghelper.domain.LogMode;
-import com.jyannis.loghelper.util.RequestUtil;
+import top.jyannis.loghelper.domain.LogInfo;
+import top.jyannis.loghelper.util.RequestUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;

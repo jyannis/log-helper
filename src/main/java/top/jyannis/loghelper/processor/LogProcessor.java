@@ -13,9 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jyannis.loghelper.processor;
+package top.jyannis.loghelper.processor;
 
-import com.jyannis.loghelper.domain.LogInfo;
+import top.jyannis.loghelper.domain.LogInfo;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.scheduling.annotation.Async;
 

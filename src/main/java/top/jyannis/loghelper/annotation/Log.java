@@ -13,25 +13,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jyannis.loghelper.util;
+package top.jyannis.loghelper.annotation;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+
+import top.jyannis.loghelper.domain.LogMode;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author Jyannis
  * @version 1.0 update on 2021/5/20
  */
-public class ThrowableUtil {
-
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Log {
     /**
-     * get stack info
+     * logging mode
+     * {@link LogMode}
+     * Valid values are listed below
+     * {@code ALL} all operations will be logged
+     * {@code INFO} operations will be logged only when there is no exceptions thrown
+     * {@code ERROR} operations will be logged only when exception is thrown
      */
-    public static String getStackTrace(Throwable throwable){
-        StringWriter sw = new StringWriter();
-        try (PrintWriter pw = new PrintWriter(sw)) {
-            throwable.printStackTrace(pw);
-            return sw.toString();
-        }
-    }
+    String mode() default LogMode.ALL;
 }

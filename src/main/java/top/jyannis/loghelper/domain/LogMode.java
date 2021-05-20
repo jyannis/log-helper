@@ -1,4 +1,4 @@
-package com.jyannis.loghelper.domain;
+package top.jyannis.loghelper.domain;
 
 /**
  * @author Jyannis

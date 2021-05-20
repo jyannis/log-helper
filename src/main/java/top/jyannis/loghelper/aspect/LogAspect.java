@@ -13,13 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jyannis.loghelper.aspect;
+package top.jyannis.loghelper.aspect;
 
-import com.jyannis.loghelper.annotation.Log;
-import com.jyannis.loghelper.domain.LogInfo;
-import com.jyannis.loghelper.processor.LogProcessor;
-import com.jyannis.loghelper.util.RequestHolder;
-import com.jyannis.loghelper.util.RequestUtil;
+import top.jyannis.loghelper.annotation.Log;
+import top.jyannis.loghelper.domain.LogInfo;
+import top.jyannis.loghelper.processor.LogProcessor;
+import top.jyannis.loghelper.util.RequestHolder;
+import top.jyannis.loghelper.util.RequestUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -50,7 +50,7 @@ public class LogAspect {
     /**
      * 配置切入点
      */
-    @Pointcut("@annotation(com.jyannis.loghelper.annotation.Log)")
+    @Pointcut("@annotation(top.jyannis.loghelper.annotation.Log)")
     public void logPointcut() {
     }
 
