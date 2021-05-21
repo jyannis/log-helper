@@ -16,9 +16,9 @@ Log-helper是一个轻量的接口级日志框架，便于节约用户自己设�
 
 ### 联系方式
 
-| QQ   | 123400197      |
-| ---- | -------------- |
-| WX   | jyannis123     |
+|  QQ  |   123400197    |
+| :--: | :------------: |
+|  WX  |   jyannis123   |
 | Mail | jyannis@qq.com |
 
 <br>
@@ -103,6 +103,7 @@ request time cost: 1 ms
 2021-05-21 21:46:44.009 ERROR 29152 --- [nio-8080-exec-4] t.j.l.processor.DefaultLogProcessor      : request time cost: 0 ms
 2021-05-21 21:46:44.009 ERROR 29152 --- [nio-8080-exec-4] t.j.l.processor.DefaultLogProcessor      : java.lang.RuntimeException
 	at top.jyannis.loghelperdemo.MyController.get(MyController.java:20)
+	...
 ```
 
 <br>
