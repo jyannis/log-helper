@@ -37,6 +37,7 @@ public abstract class AbstractLogProcessor implements LogProcessor {
         logInfo.setMethod(methodName);
         logInfo.setParams(getParameter(method, joinPoint.getArgs()));
         process(logInfo);
+
     }
 
     @Override
@@ -57,12 +58,10 @@ public abstract class AbstractLogProcessor implements LogProcessor {
         for (int i = 0; i < parameters.length; i++) {
             //arguments decorated by @RequestBody
             RequestBody requestBody = parameters[i].getAnnotation(RequestBody.class);
+            RequestParam requestParam = parameters[i].getAnnotation(RequestParam.class);
             if (requestBody != null) {
                 argList.add(args[i]);
-            }
-            //arguments decorated by @RequestParam
-            RequestParam requestParam = parameters[i].getAnnotation(RequestParam.class);
-            if (requestParam != null) {
+            } else if (requestParam != null) { //arguments decorated by @RequestParam
                 Map<String, Object> map = new HashMap<>();
                 String key = parameters[i].getName();
                 if (!StringUtils.isEmpty(requestParam.value())) {
