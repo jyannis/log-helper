@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Log {
     /**
-     * logging mode
+     * log mode
      * {@link LogMode}
      * Valid values are listed below
      * {@code ALL} all operations will be logged
@@ -39,4 +39,9 @@ public @interface Log {
      * {@code ERROR} operations will be logged only when exception is thrown
      */
     String mode() default LogMode.ALL;
+
+    /**
+     * log description
+     */
+    String value() default "";
 }

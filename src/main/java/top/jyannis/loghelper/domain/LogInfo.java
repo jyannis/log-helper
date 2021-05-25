@@ -60,4 +60,8 @@ public class LogInfo implements Serializable {
         this.time = time;
     }
 
+    public LogInfo(Long time) {
+        this.time = time;
+    }
+
 }
