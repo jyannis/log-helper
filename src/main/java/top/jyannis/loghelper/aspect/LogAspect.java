@@ -108,6 +108,7 @@ public class LogAspect {
         if(logInfo == null)throw new RuntimeException("buildLogInfo() ERROR. logInfo can't be null.");
         logAspectProcessor.preLogAfterThrow((ProceedingJoinPoint)joinPoint,logInfo);
         assembleLogInfo(logInfo,"ERROR");
+        logInfo.setThrowable(e);
         logHandler.preHandle((ProceedingJoinPoint) joinPoint, logInfo);
         logHandler.processAfterThrow(logInfo);
         logAspectProcessor.postLogAfterThrow((ProceedingJoinPoint)joinPoint,logInfo);
