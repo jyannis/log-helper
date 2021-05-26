@@ -1,6 +1,8 @@
-package top.jyannis.loghelper.processor;
+package top.jyannis.loghelper.handler;
 
 import cn.hutool.json.JSONUtil;
+import org.springframework.web.multipart.MultipartFile;
+import top.jyannis.loghelper.domain.LogFileInfo;
 import top.jyannis.loghelper.domain.LogInfo;
 import top.jyannis.loghelper.util.RequestUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -20,36 +22,26 @@ import java.util.Map;
  * @author Jyannis
  * @version 1.0 update on 2021/5/20
  */
-public abstract class AbstractLogProcessor implements LogProcessor {
+public abstract class AbstractLogHandler implements LogHandler {
 
     @Override
-    public void process(ProceedingJoinPoint joinPoint, LogInfo logInfo) {
+    public void preHandle(ProceedingJoinPoint joinPoint, LogInfo logInfo) {
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
-        // method full name
-        String methodName = joinPoint.getTarget().getClass().getName() + "." + signature.getName() + "()";
+        /**
+         * method full name has been gotten by log aspect
+         * 获取方法名的逻辑放在了log aspect中
+         */
+//        String methodName = joinPoint.getTarget().getClass().getName() + "." + signature.getName() + "()";
 
         assert logInfo != null;
 
         logInfo.setAddress(RequestUtil.getHttpCityInfo(logInfo.getRequestIp()));
-        logInfo.setMethod(methodName);
+//        logInfo.setMethod(methodName);
         logInfo.setParams(getParameter(method, joinPoint.getArgs()));
-        process(logInfo);
 
-    }
-
-    @Override
-    public void process(LogInfo logInfo){
-        String logType = logInfo.getLogType();
-        if(StringUtils.equals(logType, "INFO")){
-            processAround(logInfo);
-            return;
-        }
-        if(StringUtils.equals(logType, "ERROR")){
-            processAfterThrow(logInfo);
-        }
     }
 
     private String getParameter(Method method, Object[] args) {
@@ -67,6 +59,11 @@ public abstract class AbstractLogProcessor implements LogProcessor {
                 if (!StringUtils.isEmpty(requestParam.value())) {
                     key = requestParam.value();
                 }
+                /**
+                 * 过滤文件参数
+                 * filter file arg
+                 */
+                args[i] = filterFileArg(args[i]);
                 map.put(key, args[i]);
                 argList.add(map);
             }else {
@@ -78,6 +75,14 @@ public abstract class AbstractLogProcessor implements LogProcessor {
             return "";
         }
         return argList.size() == 1 ? JSONUtil.toJsonStr(argList.get(0)) : JSONUtil.toJsonStr(argList);
+    }
+
+    private Object filterFileArg(Object arg) {
+        if(arg instanceof MultipartFile){
+            MultipartFile file = (MultipartFile)arg;
+            return new LogFileInfo(file.getSize(),file.getOriginalFilename());
+        }
+        return arg;
     }
 
 }

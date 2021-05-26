@@ -7,6 +7,7 @@ import nl.basjes.parse.useragent.UserAgent;
 import nl.basjes.parse.useragent.UserAgentAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.util.UrlPathHelper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
@@ -27,6 +28,7 @@ public class RequestUtil {
             .withCache(10000)
             .withField(UserAgent.AGENT_NAME_VERSION)
             .build();
+    private static UrlPathHelper urlPathHelper = new UrlPathHelper();
 
     public static String getIp(HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");
@@ -67,6 +69,14 @@ public class RequestUtil {
         String api = String.format(IP_URL, ip);
         JSONObject object = JSONUtil.parseObj(HttpUtil.get(api));
         return object.get("addr", String.class);
+    }
+
+    public static String getLookupPath(HttpServletRequest request){
+        return urlPathHelper.getLookupPathForRequest(request);
+    }
+
+    public static String getMethodName(HttpServletRequest request){
+        return request.getAttribute("org.springframework.web.servlet.HandlerMapping.bestMatchingHandler").toString();
     }
 
 }

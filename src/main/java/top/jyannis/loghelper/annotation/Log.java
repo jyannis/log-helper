@@ -27,16 +27,27 @@ import java.lang.annotation.Target;
  * @author Jyannis
  * @version 1.0 update on 2021/5/20
  */
+@Deprecated
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Log {
+
     /**
-     * logging mode
+     * 日志记录模式
      * {@link LogMode}
-     * Valid values are listed below
+     * 默认有效值如下：
+     * {@code ALL} 所有操作都会被记录
+     * {@code INFO} 只有不发生异常的操作会被记录
+     * {@code ERROR} 只有发生异常时记录
+     * {@code NONE} 什么都不记录
+     *
+     * logging mode
+     * Default valid values are listed below
      * {@code ALL} all operations will be logged
      * {@code INFO} operations will be logged only when there is no exceptions thrown
      * {@code ERROR} operations will be logged only when exception is thrown
+     * {@code NONE} log nothing
      */
     String mode() default LogMode.ALL;
+
 }

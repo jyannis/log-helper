@@ -15,83 +15,113 @@
  */
 package top.jyannis.loghelper.aspect;
 
-import top.jyannis.loghelper.annotation.Log;
+import org.apache.commons.lang3.StringUtils;
+import org.aspectj.lang.annotation.*;
 import top.jyannis.loghelper.domain.LogInfo;
-import top.jyannis.loghelper.processor.LogProcessor;
-import top.jyannis.loghelper.util.RequestHolder;
+import top.jyannis.loghelper.holder.LogFilterChainHolder;
+import top.jyannis.loghelper.holder.LogProcessorHolder;
+import top.jyannis.loghelper.handler.LogHandler;
+import top.jyannis.loghelper.processor.LogAspectProcessor;
 import top.jyannis.loghelper.util.RequestUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * @author Jyannis
- * @version 1.0 update on 2021/5/20
+ * @version 1.0 update on 2021/5/26
  */
 @Aspect
 public class LogAspect {
 
-    private final LogProcessor logProcessor;
+    private final HttpServletRequest request;
+    private final LogFilterChainHolder logFilterChainHolder;
+    private final LogProcessorHolder logProcessorHolder;
+    private final LogAspectProcessor logAspectProcessor;
+    private LogHandler logHandler;
 
-    private ThreadLocal<Long> currentTime = new ThreadLocal<>();
+    private ThreadLocal<Long> currentTimeThreadLocal = new ThreadLocal<>();
 
-    public LogAspect(LogProcessor logProcessor) {
-        this.logProcessor = logProcessor;
+    public LogAspect(HttpServletRequest request, LogFilterChainHolder logFilterChainHolder, LogProcessorHolder logProcessorHolder, LogAspectProcessor logAspectProcessor) {
+        this.request = request;
+        this.logFilterChainHolder = logFilterChainHolder;
+        this.logProcessorHolder = logProcessorHolder;
+        this.logAspectProcessor = logAspectProcessor;
     }
 
-    /**
-     * 配置切入点
-     */
-    @Pointcut("@annotation(top.jyannis.loghelper.annotation.Log)")
-    public void logPointcut() {
+    private void prepareLogProcessor(String lookupPath){
+        /**
+         * 用户访问不存在的url时会跳转到/error，此时没必要记录日志
+         * When a user accesses a URL that does not exist, it will redirect to /error, no logs will be recorded.
+         */
+        if(StringUtils.equals("/error",lookupPath)){
+            this.logHandler = null;
+            return;
+        }
+        String logMode = logFilterChainHolder.matches(lookupPath);
+        this.logHandler = logProcessorHolder.getLogProcessor(logMode);
+    }
+
+    @Pointcut("@within(org.springframework.stereotype.Controller)")
+    public void controllerPointcut() {
+    }
+
+    @Pointcut("@within(org.springframework.web.bind.annotation.RestController)")
+    public void restControllerPointcut() {
+    }
+
+    @Pointcut("controllerPointcut() || restControllerPointcut()")
+    public void logPointcut(){
+
     }
 
     @Around("logPointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        LogInfo logInfo = logAspectProcessor.buildLogInfo();
+        if(logInfo == null)throw new RuntimeException("buildLogInfo() ERROR. logInfo can't be null.");
+        logAspectProcessor.preLogAround(joinPoint,logInfo);
+
+        String lookupPath = RequestUtil.getLookupPath(request);
+        prepareLogProcessor(lookupPath);
         Object result;
-        currentTime.set(System.currentTimeMillis());
-        if(!Arrays.asList("ALL", "INFO").contains(getMode(joinPoint))){
+        if(logHandler == null){
             result = joinPoint.proceed();
-            currentTime.remove();
             return result;
         }
+        currentTimeThreadLocal.set(System.currentTimeMillis());
         result = joinPoint.proceed();
-        LogInfo logInfo = new LogInfo("INFO",System.currentTimeMillis() - currentTime.get());
-        currentTime.remove();
-        HttpServletRequest request = RequestHolder.getHttpServletRequest();
-        logInfo.setRequestIp(RequestUtil.getIp(request));
-        logInfo.setBrowser(RequestUtil.getBrowser(request));
-        logProcessor.process(joinPoint, logInfo);
+
+        assembleLogInfo(logInfo,"INFO");
+        logHandler.preHandle(joinPoint, logInfo);
+        logHandler.processAround(logInfo);
+
+        logAspectProcessor.postLogAround(joinPoint,logInfo);
         return result;
     }
 
     @AfterThrowing(pointcut = "logPointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-        if(!Arrays.asList("ALL", "ERROR").contains(getMode(joinPoint))){
-            currentTime.remove();
-            return ;
-        }
-        LogInfo logInfo = new LogInfo("ERROR",System.currentTimeMillis() - currentTime.get());
-        currentTime.remove();
-        logInfo.setThrowable(e);
-        HttpServletRequest request = RequestHolder.getHttpServletRequest();
-        logInfo.setRequestIp(RequestUtil.getIp(request));
-        logInfo.setBrowser(RequestUtil.getBrowser(request));
-        logProcessor.process((ProceedingJoinPoint) joinPoint, logInfo);
+
+        LogInfo logInfo = logAspectProcessor.buildLogInfo();
+        if(logInfo == null)throw new RuntimeException("buildLogInfo() ERROR. logInfo can't be null.");
+        logAspectProcessor.preLogAfterThrow((ProceedingJoinPoint)joinPoint,logInfo);
+        assembleLogInfo(logInfo,"ERROR");
+        logHandler.preHandle((ProceedingJoinPoint) joinPoint, logInfo);
+        logHandler.processAfterThrow(logInfo);
+        logAspectProcessor.postLogAfterThrow((ProceedingJoinPoint)joinPoint,logInfo);
+
     }
 
-    private String getMode(JoinPoint joinPoint){
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method method = signature.getMethod();
-        Log log = method.getAnnotation(Log.class);
-        return log.mode();
+    private void assembleLogInfo(LogInfo logInfo, String logType){
+        logInfo.setTime(System.currentTimeMillis() - currentTimeThreadLocal.get());
+        currentTimeThreadLocal.remove();
+        logInfo.setLogType(logType);
+        logInfo.setLookupPath(RequestUtil.getLookupPath(request));
+        logInfo.setRequestIp(RequestUtil.getIp(request));
+        logInfo.setBrowser(RequestUtil.getBrowser(request));
+        logInfo.setMethod(RequestUtil.getMethodName(request));
     }
+
 }

@@ -24,40 +24,62 @@ import java.io.Serializable;
 
 /**
  * @author Jyannis
- * @version 1.0 update on 2021/5/20
+ * @version 1.0 update on 2021/5/26
  */
 @Setter
 @Getter
 @NoArgsConstructor
 public class LogInfo implements Serializable {
 
-    /** 方法名 */
+    /**
+     * 文件名
+     * method full name
+     */
     private String method;
 
-    /** 参数 */
+    /** url(lookupPath) */
+    private String lookupPath;
+
+    /**
+     * 参数
+     * params
+     */
     private String params;
 
-    /** 日志类型 */
+    /**
+     * 日志类型（info,warn,error等）
+     * log type (info,warn,error etc.)
+     */
     private String logType;
 
-    /** 请求ip */
+    /**
+     * 请求ip
+     * request ip
+     */
     private String requestIp;
 
-    /** 地址 */
+    /**
+     * 请求来源地址
+     * request source address
+     */
     private String address;
 
-    /** 浏览器  */
+    /**
+     * 请求来源浏览器
+     * request source browser
+     */
     private String browser;
 
-    /** 请求耗时 */
+    /**
+     * 请求耗时
+     * request time consuming
+     */
     private Long time;
 
-    /** 异常详细  */
+    /**
+     * 异常
+     * exception
+     */
     private Throwable throwable;
-
-    public LogInfo(String logType, Long time) {
-        this.logType = logType;
-        this.time = time;
-    }
 
 }
