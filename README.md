@@ -35,7 +35,7 @@ Log-helper是一个轻量的接口级日志框架，便于节约用户自己设�
 		<dependency>
 			<groupId>top.jyannis</groupId>
 			<artifactId>log-helper</artifactId>
-			<version>0.1.0</version>
+			<version>0.1.2</version>
 		</dependency>
 ```
 

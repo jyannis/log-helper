@@ -3,7 +3,7 @@ package top.jyannis.loghelper.autoconfigure;
 import top.jyannis.loghelper.aspect.LogAspect;
 import top.jyannis.loghelper.domain.LogMode;
 import top.jyannis.loghelper.holder.LogFilterChainHolder;
-import top.jyannis.loghelper.holder.LogProcessorHolder;
+import top.jyannis.loghelper.holder.LogHandlerHolder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +30,8 @@ public class LogAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    LogProcessorHolder logProcessorHolder(){
-        return new LogProcessorHolder();
+    LogHandlerHolder logProcessorHolder(){
+        return new LogHandlerHolder();
     }
 
     @Bean
@@ -43,8 +43,8 @@ public class LogAutoConfiguration {
     @Bean
     LogAspect logAspect(HttpServletRequest httpServletRequest,
                         LogFilterChainHolder logProcessor,
-                        LogProcessorHolder logProcessorHolder,
+                        LogHandlerHolder logHandlerHolder,
                         LogAspectProcessor logAspectProcessor){
-        return new LogAspect(httpServletRequest,logProcessor,logProcessorHolder,logAspectProcessor);
+        return new LogAspect(httpServletRequest,logProcessor, logHandlerHolder,logAspectProcessor);
     }
 }

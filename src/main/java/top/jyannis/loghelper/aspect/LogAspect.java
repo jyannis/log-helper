@@ -19,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.annotation.*;
 import top.jyannis.loghelper.domain.LogInfo;
 import top.jyannis.loghelper.holder.LogFilterChainHolder;
-import top.jyannis.loghelper.holder.LogProcessorHolder;
+import top.jyannis.loghelper.holder.LogHandlerHolder;
 import top.jyannis.loghelper.handler.LogHandler;
 import top.jyannis.loghelper.processor.LogAspectProcessor;
 import top.jyannis.loghelper.util.RequestUtil;
@@ -37,16 +37,16 @@ public class LogAspect {
 
     private final HttpServletRequest request;
     private final LogFilterChainHolder logFilterChainHolder;
-    private final LogProcessorHolder logProcessorHolder;
+    private final LogHandlerHolder logHandlerHolder;
     private final LogAspectProcessor logAspectProcessor;
     private LogHandler logHandler;
 
     private ThreadLocal<Long> currentTimeThreadLocal = new ThreadLocal<>();
 
-    public LogAspect(HttpServletRequest request, LogFilterChainHolder logFilterChainHolder, LogProcessorHolder logProcessorHolder, LogAspectProcessor logAspectProcessor) {
+    public LogAspect(HttpServletRequest request, LogFilterChainHolder logFilterChainHolder, LogHandlerHolder logHandlerHolder, LogAspectProcessor logAspectProcessor) {
         this.request = request;
         this.logFilterChainHolder = logFilterChainHolder;
-        this.logProcessorHolder = logProcessorHolder;
+        this.logHandlerHolder = logHandlerHolder;
         this.logAspectProcessor = logAspectProcessor;
     }
 
@@ -60,7 +60,7 @@ public class LogAspect {
             return;
         }
         String logMode = logFilterChainHolder.matches(lookupPath);
-        this.logHandler = logProcessorHolder.getLogProcessor(logMode);
+        this.logHandler = logHandlerHolder.getLogHandler(logMode);
     }
 
     @Pointcut("@within(org.springframework.stereotype.Controller)")
@@ -86,11 +86,11 @@ public class LogAspect {
         String lookupPath = RequestUtil.getLookupPath(request);
         prepareLogProcessor(lookupPath);
         Object result;
+        currentTimeThreadLocal.set(System.currentTimeMillis());
         if(logHandler == null){
             result = joinPoint.proceed();
             return result;
         }
-        currentTimeThreadLocal.set(System.currentTimeMillis());
         result = joinPoint.proceed();
 
         assembleLogInfo(logInfo,"INFO");
