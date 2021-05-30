@@ -43,24 +43,9 @@ Log-helper是一个轻量的接口级日志框架，便于节约用户自己设�
 
 ### 简单使用
 
-直接在业务控制层方法上添加`@Log`注解即可。
+直接maven引入插件即可，无需添加任何配置。
 
-```java
-...
-import top.jyannis.loghelper.annotation.Log;
-...
-
-	@Log
-    @GetMapping("/")
-    public Void get(String arg){
-        if(StringUtils.isEmpty(arg)){
-            throw new RuntimeException();
-        }
-    }
-
-```
-
-
+代码示例：
 
 在本地访问接口，无异常时日志如下：
 
@@ -155,4 +140,3 @@ public class DefaultLogProcessor extends AbstractLogProcessor {
 ```
 
 <br>
-
