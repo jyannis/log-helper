@@ -39,104 +39,18 @@ Log-helper是一个轻量的接口级日志框架，便于节约用户自己设�
 		</dependency>
 ```
 
-<br>
-
-### 简单使用
-
-直接maven引入插件即可，无需添加任何配置。
-
-代码示例：
-
-在本地访问接口，无异常时日志如下：
-
-```shell
-2021-05-21 21:40:52.224  INFO 27512 --- [nio-8080-exec-5] t.j.l.processor.DefaultLogProcessor      : call method: top.jyannis.loghelperdemo.MyController.get()
-2021-05-21 21:40:52.224  INFO 27512 --- [nio-8080-exec-5] t.j.l.processor.DefaultLogProcessor      : request params: 'a message'
-2021-05-21 21:40:52.224  INFO 27512 --- [nio-8080-exec-5] t.j.l.processor.DefaultLogProcessor      : request ip: 192.168.2.115
-2021-05-21 21:40:52.224  INFO 27512 --- [nio-8080-exec-5] t.j.l.processor.DefaultLogProcessor      : request address:  局域网
-2021-05-21 21:40:52.224  INFO 27512 --- [nio-8080-exec-5] t.j.l.processor.DefaultLogProcessor      : request browser: Firefox 88.0
-2021-05-21 21:40:52.224  INFO 27512 --- [nio-8080-exec-5] t.j.l.processor.DefaultLogProcessor      : request time cost: 1 ms
-```
-
-包含以下内容：
-
-```shell
-# 访问的方法
-top.jyannis.loghelperdemo.MyController.get()
-# 请求参数
-request params: 'a message'
-# 来源ip
-request ip: 192.168.2.115
-# 来源地址
-request address:  局域网
-# 来源浏览器
-request browser: Firefox 88.0
-# 接口耗时
-request time cost: 1 ms
-```
-
-
-
-有异常时，除了打印常规信息外，还会打印异常栈：
-
-```shell
-2021-05-21 21:46:44.008 ERROR 29152 --- [nio-8080-exec-4] t.j.l.processor.DefaultLogProcessor      : call method: top.jyannis.loghelperdemo.MyController.get()
-2021-05-21 21:46:44.008 ERROR 29152 --- [nio-8080-exec-4] t.j.l.processor.DefaultLogProcessor      : request params: 
-2021-05-21 21:46:44.008 ERROR 29152 --- [nio-8080-exec-4] t.j.l.processor.DefaultLogProcessor      : request ip: 192.168.2.115
-2021-05-21 21:46:44.008 ERROR 29152 --- [nio-8080-exec-4] t.j.l.processor.DefaultLogProcessor      : request address:  局域网
-2021-05-21 21:46:44.008 ERROR 29152 --- [nio-8080-exec-4] t.j.l.processor.DefaultLogProcessor      : request browser: Firefox 88.0
-2021-05-21 21:46:44.009 ERROR 29152 --- [nio-8080-exec-4] t.j.l.processor.DefaultLogProcessor      : request time cost: 0 ms
-2021-05-21 21:46:44.009 ERROR 29152 --- [nio-8080-exec-4] t.j.l.processor.DefaultLogProcessor      : java.lang.RuntimeException
-	at top.jyannis.loghelperdemo.MyController.get(MyController.java:20)
-	...
-```
+接入依赖后无需添加任何配置即可使用，会自动为业务接口打印日志（包括方法、入参、访问ip等）。
 
 <br>
 
-## 高级
+### 使用示例
 
-### 定制化处理器
+请参考`log-helper-demo`项目。
 
-用户可能希望有自己的日志处理方式，例如以存库代替存档、补充其他日志信息、选择自己的打印方式等。
+项目文档及源码：
 
-可以通过<font color='red'>重写`AbstractLogProcessor`并注册到Spring容器</font>来实现这一点：
-
-```java
-@Slf4j
-@Service
-public class DefaultLogProcessor extends AbstractLogProcessor {
-
-    /**
-     * 正常流程的日志处理方法
-     * @param logInfo log data
-     */
-    @Override
-    public void processAround(LogInfo logInfo) {
-        log.info("call method: {}",logInfo.getMethod());
-        log.info("request params: {}",logInfo.getParams());
-        log.info("request ip: {}",logInfo.getRequestIp());
-        log.info("request address: {}",logInfo.getAddress());
-        log.info("request browser: {}",logInfo.getBrowser());
-        log.info("request time cost: {} ms",logInfo.getTime());
-    }
-
-    /**
-     * 异常流程的日志处理办法
-     * @param logInfo log data
-     */
-    @Override
-    public void processAfterThrow(LogInfo logInfo) {
-        String stackTrace = ThrowableUtil.getStackTrace(logInfo.getThrowable());
-        log.error("call method: {}",logInfo.getMethod());
-        log.error("request params: {}",logInfo.getParams());
-        log.error("request ip: {}",logInfo.getRequestIp());
-        log.error("request address: {}",logInfo.getAddress());
-        log.error("request browser: {}",logInfo.getBrowser());
-        log.error("request time cost: {} ms",logInfo.getTime());
-        log.error(stackTrace);
-    }
-
-}
-```
+| Github                                     | Gitee                                     |
+| ------------------------------------------ | ----------------------------------------- |
+| https://github.com/jyannis/log-helper-demo | https://gitee.com/jyannis/log-helper-demo |
 
 <br>
